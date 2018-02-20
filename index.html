@@ -1,63 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Socket.IO chat</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font: 13px Helvetica, Arial;
-    }
-
-    form {
-      background: #000;
-      padding: 3px;
+    #chat form {
       position: fixed;
       bottom: 0;
+      padding: 1rem;
       width: 100%;
-    }
-
-    form input {
-      border: 0;
-      padding: 10px;
-      width: 90%;
-      margin-right: .5%;
-    }
-
-    form button {
-      width: 9%;
-      background: rgb(130, 224, 255);
-      border: none;
-      padding: 10px;
     }
 
     #messages {
       list-style-type: none;
       margin: 0;
-      padding: 0;
+      padding: 4rem 0 0 0;
     }
 
     #messages li {
-      padding: 5px 10px;
+      padding: 0.5rem 0.8rem;
     }
 
     #messages li:nth-child(odd) {
       background: #eee;
     }
   </style>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+  crossorigin="anonymous">
 </head>
 <body>
-  <ul id="messages"></ul>
-  <form action="">
-    <input id="m" autocomplete="off" />
-    <button>Send</button>
-  </form>
+  <header>
+    <nav class="navbar .navbar-expand-lg fixed-top navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">Oh my chat!</a>
+      <form class="form-inline">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">@</span>
+          </div>
+          <input type="text" class="form-control" placeholder="Username" aria-label="username" aria-describedby="basic-addon1" data-toggle="modal" data-target="#usernameModal">
+        </div>
+      </form>
+    </nav>
+  </header>
+  <section id="chat">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul id="messages">
+          </ul>
+        </div>
+      </div>
+    </div>
+    <form>
+      <div class="input-group">
+        <input id="m" autocomplete="off" type="text" class="form-control" placeholder="Mensaje" aria-describedby="basic-addon2">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button">Enviar</button>
+        </div>
+      </div>
+    </form>
+  </section>
+  <!-- Modal -->
+  <div class="modal fade" id="usernameModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">ingresa tu nickname</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="nick">@</span>
+            </div>
+            <input i="nickname" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="nick">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button id="savebtn" type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div> <!-- fin modal -->
+  <!-- Scripts -->
   <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
   <script>
     $(function() {
       var socket = io('http://34.227.11.223:3000');
@@ -69,6 +106,24 @@
       socket.on('chat message', function(msg) {
         $('#messages').append($('<li>').text(msg));
       });
+      
+      // Sets the client's username
+      let username = '';
+      savebtn.onclick = function setUsername() {
+        username = $('#nickname').val();
+        console.log(username);
+        // If the username is valid
+        if (username) {
+          $loginPage.fadeOut();
+          $chatPage.show();
+          $loginPage.off('click');
+          $currentInput = $inputMessage.focus();
+
+          // Tell the server your username
+          socket.emit('add user', username);
+        }
+      }
+
     });
   </script>
 </body>
